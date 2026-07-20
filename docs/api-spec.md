@@ -180,3 +180,19 @@ LANGFUSE_HOST
 - `200`: 평가 성공
 - `400`: 잘못된 사용자 입력
 - `500`: 평가 실패
+
+## GET /api/evaluate
+
+브라우저 주소창에서 API 엔드포인트를 열었을 때 501 오류가 뜨지 않도록 상태 확인용 JSON을 반환합니다.
+
+예상 응답:
+
+```json
+{
+  "ok": true,
+  "service": "TranslateUp evaluation API",
+  "message": "이 엔드포인트는 POST 요청으로 영작 답변을 평가합니다."
+}
+```
+
+실제 평가는 반드시 `POST /api/evaluate`로 호출합니다.

@@ -179,13 +179,23 @@ class handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Cache-Control", "no-store")
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
         self.wfile.write(encoded)
 
     def do_OPTIONS(self):
         self._send_json(200, {"ok": True})
+
+    def do_GET(self):
+        self._send_json(
+            200,
+            {
+                "ok": True,
+                "service": "TranslateUp evaluation API",
+                "message": "이 엔드포인트는 POST 요청으로 영작 답변을 평가합니다.",
+            },
+        )
 
     def do_POST(self):
         try:

@@ -172,7 +172,7 @@ def evaluate_with_openai(data):
     return normalize_result(json.loads(output_text), data["userAnswer"])
 
 
-class handler(BaseHTTPRequestHandler):
+class EvaluationHandler(BaseHTTPRequestHandler):
     def _send_json(self, status, payload):
         encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)

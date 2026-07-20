@@ -5,8 +5,8 @@
 - 프론트엔드: 순수 HTML, CSS, JavaScript
 - 프론트엔드 프레임워크: 사용하지 않음
 - 백엔드: Vercel Serverless Functions의 Python
-- API 위치: `api/evaluate.py`
-- 프론트엔드 호출 방식: `fetch('/api/evaluate')`
+- API 위치: `api/index.py`
+- 프론트엔드 호출 방식: `fetch('/api')`
 - 배포: Vercel
 - 문제 출처: 로컬 정적 JSON
 - AI 역할: 평가 전용
@@ -22,7 +22,7 @@
 - `data/` 폴더를 추가합니다.
 - `images/` 폴더를 추가합니다.
 - `requirements.txt`를 추가합니다.
-- Vercel 기본 감지를 위해 `api/index.py`를 추가하고 평가 핸들러를 연결합니다.
+- Vercel 기본 감지를 위해 `api/index.py`를 추가하고 top-level `handler` 클래스를 정의합니다.
 - README를 제출 기준에 맞게 갱신할 준비를 합니다.
 
 완료 기준:
@@ -83,7 +83,8 @@
 
 ## 5단계: Python 평가 API
 
-- `api/evaluate.py`를 구현합니다.
+- `api/index.py`를 Vercel 함수 엔트리포인트로 구현합니다.
+- `api/evaluate.py`에는 평가 로직을 둡니다.
 - 요청 본문을 파싱합니다.
 - 서버에서 입력값을 다시 검증합니다.
 - 선택한 AI 제공자를 호출합니다.
@@ -97,13 +98,13 @@
 - 잘못된 요청은 `400`을 반환합니다.
 - 제공자 오류 또는 파싱 실패는 `500`을 반환합니다.
 - API 키 누락은 통제된 서버 오류로 처리됩니다.
-- 프론트엔드는 `fetch('/api/evaluate')`로 API를 호출합니다.
+- 프론트엔드는 `fetch('/api')`로 API를 호출합니다.
 
 ## 6단계: Langfuse 관측 준비
 
 - Langfuse 연동 여부를 결정합니다.
 - 연동하는 경우 최신 공식 문서를 확인합니다.
-- `/api/evaluate` 호출을 trace 대상으로 설계합니다.
+- `/api` 호출을 trace 대상으로 설계합니다.
 - 평가 프롬프트, 응답, 오류를 어떤 범위까지 저장할지 정합니다.
 - 필요한 환경 변수를 문서화합니다.
 

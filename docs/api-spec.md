@@ -1,19 +1,19 @@
 # API 명세
 
-## POST /api/evaluate
+## POST /api
 
 사용자의 영어 답변을 한국어 원문과 비교해 평가합니다.
 
 구현 위치:
 
 ```text
-api/evaluate.py
+api/index.py
 ```
 
 프론트엔드 호출 방식:
 
 ```js
-fetch('/api/evaluate', {
+fetch('/api', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -113,7 +113,7 @@ Langfuse 연동은 MVP 필수 기능은 아니지만, AI 평가 품질을 확인
 
 관측 대상:
 
-- `/api/evaluate` 요청
+- `/api` 요청
 - 난이도
 - 한국어 원문
 - 사용자 답변
@@ -181,7 +181,7 @@ LANGFUSE_HOST
 - `400`: 잘못된 사용자 입력
 - `500`: 평가 실패
 
-## GET /api/evaluate
+## GET /api
 
 브라우저 주소창에서 API 엔드포인트를 열었을 때 501 오류가 뜨지 않도록 상태 확인용 JSON을 반환합니다.
 
@@ -195,4 +195,4 @@ LANGFUSE_HOST
 }
 ```
 
-실제 평가는 반드시 `POST /api/evaluate`로 호출합니다.
+실제 평가는 반드시 `POST /api`로 호출합니다.

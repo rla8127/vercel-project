@@ -200,7 +200,7 @@ async function submitEvaluation(event) {
   const timeoutId = window.setTimeout(() => controller.abort(), 30000);
 
   try {
-    const response = await fetch("/api/evaluate", {
+    const response = await fetch("/api", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

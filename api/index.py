@@ -1,4 +1,8 @@
 try:
-    from evaluate import handler
+    from evaluate import EvaluationHandler
 except ImportError:
-    from .evaluate import handler
+    from .evaluate import EvaluationHandler
+
+
+class handler(EvaluationHandler):
+    pass

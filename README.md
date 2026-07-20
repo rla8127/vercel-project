@@ -30,7 +30,6 @@ images/
 data/
 docs/
 requirements.txt
-pyproject.toml
 README.md
 ```
 

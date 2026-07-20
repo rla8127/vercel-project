@@ -22,7 +22,7 @@
 - `data/` 폴더를 추가합니다.
 - `images/` 폴더를 추가합니다.
 - `requirements.txt`를 추가합니다.
-- `pyproject.toml`에 Vercel Python 엔트리포인트를 명시합니다.
+- Vercel 기본 감지를 위해 `api/index.py`를 추가하고 평가 핸들러를 연결합니다.
 - README를 제출 기준에 맞게 갱신할 준비를 합니다.
 
 완료 기준:
@@ -30,7 +30,7 @@
 - 과제에서 요구하는 프론트엔드와 백엔드 구조가 분리되어 있습니다.
 - 로컬에서 정적 페이지를 열거나 간단한 서버로 확인할 수 있습니다.
 - Python 백엔드 의존성 파일이 존재합니다.
-- Vercel이 `api/evaluate.py`의 `handler`를 찾을 수 있습니다.
+- 루트 URL은 프론트엔드 `index.html`을 표시하고, API 경로만 Python 함수를 실행합니다.
 
 ## 2단계: 정적 문제 데이터와 공통 구조
 

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TranslateUp | AI 영작 트레이너</title>
+    <meta
+      name="description"
+      content="한국어 문장을 영어로 직접 쓰고 AI에게 의미, 문법, 자연스러움을 평가받는 영작 학습 서비스"
+    >
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#home" aria-label="TranslateUp 홈">
+        <img src="images/translateup-mark.svg" alt="" width="34" height="34">
+        <span>TranslateUp</span>
+      </a>
+      <nav class="nav" aria-label="주요 메뉴">
+        <a href="#trainer">영작 연습</a>
+        <a href="#guide">학습 안내</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+    </header>
+
+    <main>
+      <section id="home" class="hero section">
+        <div class="hero-copy">
+          <p class="eyebrow">AI 영작 피드백</p>
+          <h1>한국어 문장을 영어로 쓰고, 왜 틀렸는지 바로 확인하세요.</h1>
+          <p class="hero-text">
+            TranslateUp은 모범 답안과 글자가 같은지만 보지 않습니다. 의미 전달, 문법,
+            자연스러움을 나누어 평가하고 이미 좋은 문장은 억지로 고치지 않습니다.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#trainer">바로 시작</a>
+            <a class="button secondary" href="#guide">평가 기준 보기</a>
+          </div>
+        </div>
+        <div class="hero-panel" aria-label="서비스 예시">
+          <div class="sample-card korean">
+            <span>한국어 문제</span>
+            <strong>나는 주말마다 친구를 만난다.</strong>
+          </div>
+          <div class="sample-card answer">
+            <span>내 답변</span>
+            <strong>I meet my friend every weekend.</strong>
+          </div>
+          <div class="sample-card feedback">
+            <span>AI 피드백</span>
+            <strong>my friend → my friends</strong>
+            <p>의미는 잘 전달됐고, 일반적인 표현에서는 복수형이 더 자연스럽습니다.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="trainer" class="trainer section" aria-labelledby="trainer-title">
+        <div class="section-heading">
+          <p class="eyebrow">영작 연습</p>
+          <h2 id="trainer-title">난이도를 고르고 영어 문장을 작성하세요.</h2>
+        </div>
+
+        <div class="trainer-layout">
+          <form class="practice-panel" id="practice-form" novalidate>
+            <fieldset class="level-group">
+              <legend>난이도 선택</legend>
+              <label class="level-option">
+                <input type="radio" name="level" value="beginner">
+                <span>
+                  <strong>초급</strong>
+                  <small>짧은 기본 문장</small>
+                </span>
+              </label>
+              <label class="level-option">
+                <input type="radio" name="level" value="intermediate">
+                <span>
+                  <strong>중급</strong>
+                  <small>이유와 경험이 있는 문장</small>
+                </span>
+              </label>
+            </fieldset>
+
+            <div class="prompt-box">
+              <div class="prompt-top">
+                <span>한국어 문제</span>
+                <button class="text-button" id="next-button" type="button">다음 문제</button>
+              </div>
+              <p id="korean-sentence">난이도를 선택하면 문제가 표시됩니다.</p>
+            </div>
+
+            <label class="answer-label" for="user-answer">영어 답변</label>
+            <textarea
+              id="user-answer"
+              name="answer"
+              rows="5"
+              placeholder="예: I meet my friends every weekend."
+            ></textarea>
+
+            <p class="message" id="form-message" role="status" aria-live="polite"></p>
+
+            <button class="button primary full" id="submit-button" type="submit">
+              AI 평가 받기
+            </button>
+          </form>
+
+          <aside class="result-panel" id="result-panel" aria-labelledby="result-title">
+            <div class="result-empty" id="result-empty">
+              <p class="eyebrow">AI 평가 결과</p>
+              <h2 id="result-title">답변을 제출하면 점수와 피드백이 여기에 표시됩니다.</h2>
+              <p>종합 점수, 의미 전달, 문법, 자연스러움, 추천 문장, 수정할 부분을 나누어 보여줍니다.</p>
+            </div>
+
+            <div class="result-content hidden" id="result-content">
+              <div class="score-summary">
+                <span>종합 점수</span>
+                <strong id="score-total">0점</strong>
+              </div>
+              <div class="score-grid">
+                <div>
+                  <span>의미 전달</span>
+                  <strong id="score-meaning">0점</strong>
+                </div>
+                <div>
+                  <span>문법</span>
+                  <strong id="score-grammar">0점</strong>
+                </div>
+                <div>
+                  <span>자연스러움</span>
+                  <strong id="score-naturalness">0점</strong>
+                </div>
+              </div>
+
+              <div class="result-block">
+                <h3>추천 문장</h3>
+                <p class="corrected" id="corrected-sentence"></p>
+              </div>
+
+              <div class="result-block">
+                <h3>수정할 부분</h3>
+                <ul class="mistake-list" id="mistake-list"></ul>
+              </div>
+
+              <div class="result-block">
+                <h3>전체 피드백</h3>
+                <p id="feedback-text"></p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="guide" class="guide section" aria-labelledby="guide-title">
+        <div class="section-heading">
+          <p class="eyebrow">학습 안내</p>
+          <h2 id="guide-title">정답 하나를 외우는 대신, 내 문장을 고쳐 갑니다.</h2>
+        </div>
+        <div class="guide-grid">
+          <article>
+            <span>1</span>
+            <h3>한국어 의미 확인</h3>
+            <p>AI는 사용자의 영어 문장이 원문의 핵심 의미를 전달하는지 먼저 확인합니다.</p>
+          </article>
+          <article>
+            <span>2</span>
+            <h3>문법과 구조 점검</h3>
+            <p>시제, 주어와 동사, 단수와 복수, 접속사 사용을 난이도에 맞게 평가합니다.</p>
+          </article>
+          <article>
+            <span>3</span>
+            <h3>자연스러운 표현 제안</h3>
+            <p>문법적으로 맞아도 어색한 표현은 더 자연스러운 문장으로 바꿔 설명합니다.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="faq" class="faq section" aria-labelledby="faq-title">
+        <div class="section-heading">
+          <p class="eyebrow">FAQ</p>
+          <h2 id="faq-title">AI 평가는 이렇게 동작합니다.</h2>
+        </div>
+        <div class="faq-list">
+          <details>
+            <summary>모범 답안과 다르면 무조건 감점되나요?</summary>
+            <p>아니요. 의미가 맞고 자연스러운 영어라면 다른 표현도 정답으로 인정합니다.</p>
+          </details>
+          <details>
+            <summary>이미 맞는 문장도 고치나요?</summary>
+            <p>문법적으로 정확하고 자연스러운 문장은 억지로 수정하지 않도록 평가 기준에 넣었습니다.</p>
+          </details>
+          <details>
+            <summary>API 키는 어디에 저장하나요?</summary>
+            <p>OpenAI API 키는 코드에 쓰지 않고 Vercel 환경 변수 `OPENAI_API_KEY`로 설정합니다.</p>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>TranslateUp · AI 기반 영작 피드백 서비스</p>
+    </footer>
+
+    <script src="js/app.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "level": "beginner",
+    "sentence": "나는 매일 아침 커피를 마신다.",
+    "exampleAnswer": "I drink coffee every morning."
+  },
+  {
+    "id": 2,
+    "level": "beginner",
+    "sentence": "그녀는 어제 영화를 보았다.",
+    "exampleAnswer": "She watched a movie yesterday."
+  },
+  {
+    "id": 3,
+    "level": "beginner",
+    "sentence": "우리는 학교에 걸어간다.",
+    "exampleAnswer": "We walk to school."
+  },
+  {
+    "id": 4,
+    "level": "beginner",
+    "sentence": "나는 주말마다 친구를 만난다.",
+    "exampleAnswer": "I meet my friends every weekend."
+  },
+  {
+    "id": 5,
+    "level": "intermediate",
+    "sentence": "나는 시간을 절약할 수 있기 때문에 온라인 쇼핑을 선호한다.",
+    "exampleAnswer": "I prefer shopping online because it saves me time."
+  },
+  {
+    "id": 6,
+    "level": "intermediate",
+    "sentence": "비가 많이 와서 우리는 약속을 취소해야 했다.",
+    "exampleAnswer": "Because it rained heavily, we had to cancel our appointment."
+  },
+  {
+    "id": 7,
+    "level": "intermediate",
+    "sentence": "나는 새로운 언어를 배우는 것이 자신감을 높여 준다고 생각한다.",
+    "exampleAnswer": "I think learning a new language increases confidence."
+  },
+  {
+    "id": 8,
+    "level": "intermediate",
+    "sentence": "그는 건강을 유지하기 위해 퇴근 후에 운동을 한다.",
+    "exampleAnswer": "He exercises after work to stay healthy."
+  }
+]

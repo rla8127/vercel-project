@@ -188,14 +188,10 @@ class EvaluationHandler(BaseHTTPRequestHandler):
         self._send_json(200, {"ok": True})
 
     def do_GET(self):
-        self._send_json(
-            200,
-            {
-                "ok": True,
-                "service": "TranslateUp evaluation API",
-                "message": "이 엔드포인트는 POST 요청으로 영작 답변을 평가합니다.",
-            },
-        )
+        self.send_response(302)
+        self.send_header("Location", "/")
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
 
     def do_POST(self):
         try:

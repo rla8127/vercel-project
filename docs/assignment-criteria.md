@@ -53,6 +53,7 @@ images/
 data/
 docs/
 requirements.txt
+vercel.json
 README.md
 ```
 

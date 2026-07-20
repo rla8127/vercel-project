@@ -187,7 +187,7 @@ README.md
 - Langfuse SDK와 API는 특별한 이유가 없으면 최신 버전을 기준으로 사용합니다.
 - API 키는 채팅에 노출하지 않고 환경 변수로만 관리합니다.
 - 예상 환경 변수는 `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_HOST`입니다.
-- `/api` 같은 AI 평가 흐름은 향후 Langfuse trace 대상으로 우선 고려합니다.
+- `/api/evaluate` 같은 AI 평가 흐름은 향후 Langfuse trace 대상으로 우선 고려합니다.
 - 프롬프트를 Langfuse로 이전하거나 관리하는 경우, 코드에 흩어진 프롬프트와 Langfuse의 prompt 버전이 충돌하지 않도록 명세를 갱신합니다.
 
 ## 코드 변경 규칙

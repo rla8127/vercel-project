@@ -29,7 +29,7 @@ MVP에서 사용하는 난이도:
 
 ### EvaluationRequest
 
-클라이언트에서 `/api`로 보내는 요청입니다.
+클라이언트에서 `/api/evaluate`로 보내는 요청입니다.
 
 ```js
 /**
@@ -42,7 +42,7 @@ MVP에서 사용하는 난이도:
 
 ### EvaluationResult
 
-`/api`가 반환하는 구조화된 평가 결과입니다.
+`/api/evaluate`가 반환하는 구조화된 평가 결과입니다.
 
 ```js
 /**

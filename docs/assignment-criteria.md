@@ -53,6 +53,7 @@ images/
 data/
 docs/
 requirements.txt
+pyproject.toml
 README.md
 ```
 
@@ -239,4 +240,3 @@ docs/evidence/
 - 데스크톱, 모바일, AI 기능 동작 스크린샷이 있습니다.
 - AI 코딩 도구 사용 증빙이 있습니다.
 - API 키가 어디에도 노출되지 않았습니다.
-

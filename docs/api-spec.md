@@ -7,14 +7,11 @@
 구현 위치:
 
 ```text
-api/index.py
+api/index.py    - FastAPI 앱, 라우팅 (/api/evaluate, 정적 파일)
+api/evaluate.py - 평가 로직 (요청 검증, OpenAI 호출)
 ```
 
-Vercel 내부 라우팅:
-
-```text
-/api/evaluate -> /api
-```
+Vercel Python 런타임은 하나의 ASGI/WSGI 앱을 엔트리포인트로 사용합니다. `api/index.py`의 top-level `app` (FastAPI 인스턴스)이 모든 요청을 받아 `/api/evaluate`는 API 라우트로 처리하고, 나머지 경로는 `StaticFiles` 마운트로 프로젝트 루트의 정적 파일을 서빙합니다.
 
 프론트엔드 호출 방식:
 

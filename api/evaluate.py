@@ -1,7 +1,6 @@
 import json
 import os
 import re
-from http.server import BaseHTTPRequestHandler
 
 
 ALLOWED_LEVELS = {"beginner", "intermediate"}
@@ -172,45 +171,19 @@ def evaluate_with_openai(data):
     return normalize_result(json.loads(output_text), data["userAnswer"])
 
 
-class EvaluationHandler(BaseHTTPRequestHandler):
-    def _send_json(self, status, payload):
-        encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Cache-Control", "no-store")
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
-        self.end_headers()
-        self.wfile.write(encoded)
+def run_evaluation(raw_body):
+    try:
+        body_data = json.loads(raw_body or "{}")
+    except json.JSONDecodeError:
+        return 400, {"error": "요청 형식이 올바르지 않습니다."}
 
-    def do_OPTIONS(self):
-        self._send_json(200, {"ok": True})
+    data, error = validate_body(body_data)
+    if error:
+        return 400, {"error": error}
 
-    def do_GET(self):
-        self.send_response(302)
-        self.send_header("Location", "/")
-        self.send_header("Cache-Control", "no-store")
-        self.end_headers()
+    try:
+        result = evaluate_with_openai(data)
+    except Exception:
+        return 500, {"error": "평가 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."}
 
-    def do_POST(self):
-        try:
-            content_length = int(self.headers.get("Content-Length", "0"))
-            raw_body = self.rfile.read(content_length).decode("utf-8")
-            body = json.loads(raw_body or "{}")
-        except (ValueError, json.JSONDecodeError):
-            self._send_json(400, {"error": "요청 형식이 올바르지 않습니다."})
-            return
-
-        data, error = validate_body(body)
-        if error:
-            self._send_json(400, {"error": error})
-            return
-
-        try:
-            result = evaluate_with_openai(data)
-        except Exception:
-            self._send_json(500, {"error": "평가 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."})
-            return
-
-        self._send_json(200, result)
+    return 200, result

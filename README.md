@@ -48,9 +48,12 @@ python3 -m http.server 3000
 http://localhost:3000
 ```
 
-Python API까지 로컬에서 확인하려면 Vercel CLI 환경에서 실행합니다.
+Python API까지 로컬에서 확인하려면 Python 3.12 이상의 가상환경을 만들고 의존성을 설치한 뒤, 그 가상환경을 활성화한 상태로 Vercel CLI를 실행합니다. (가상환경이 없으면 시스템 기본 Python으로 실행되어 오류가 날 수 있습니다.)
 
 ```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 vercel dev
 ```
 

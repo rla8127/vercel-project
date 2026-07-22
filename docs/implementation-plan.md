@@ -5,7 +5,7 @@
 - 프론트엔드: 순수 HTML, CSS, JavaScript
 - 프론트엔드 프레임워크: 사용하지 않음
 - 백엔드: Vercel Serverless Functions의 Python
-- API 위치: `api/index.py`
+- API 위치: `api/index.py` (FastAPI 앱), 평가 로직은 `api/evaluate.py`
 - 프론트엔드 호출 방식: `fetch('/api/evaluate')`
 - 배포: Vercel
 - 문제 출처: 로컬 정적 JSON
@@ -22,7 +22,7 @@
 - `data/` 폴더를 추가합니다.
 - `images/` 폴더를 추가합니다.
 - `requirements.txt`를 추가합니다.
-- Vercel 기본 감지를 위해 `api/index.py`를 추가하고 top-level `handler` 클래스를 정의합니다.
+- `api/index.py`에 FastAPI 앱(top-level `app`)을 정의해 `/api/evaluate` 라우팅과 정적 파일 서빙을 함께 처리합니다.
 - README를 제출 기준에 맞게 갱신할 준비를 합니다.
 
 완료 기준:
@@ -83,7 +83,7 @@
 
 ## 5단계: Python 평가 API
 
-- `api/index.py`를 Vercel 함수 엔트리포인트로 구현합니다.
+- `api/index.py`에 FastAPI 앱을 Vercel 함수 엔트리포인트로 구현합니다.
 - `api/evaluate.py`에는 평가 로직을 둡니다.
 - 요청 본문을 파싱합니다.
 - 서버에서 입력값을 다시 검증합니다.

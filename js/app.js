@@ -24,61 +24,6 @@ function scoreText(value) {
   return `${Math.max(0, Math.min(100, score))}점`;
 }
 
-function clampScore(value) {
-  const score = Number.isFinite(Number(value)) ? Math.round(Number(value)) : 0;
-  return Math.max(0, Math.min(100, score));
-}
-
-function gradeForScore(score) {
-  if (score >= 90) return "s";
-  if (score >= 75) return "a";
-  if (score >= 60) return "b";
-  if (score >= 40) return "c";
-  return "d";
-}
-
-const REDUCE_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const SCORE_RING_CIRCUMFERENCE = 2 * Math.PI * 52;
-
-function animateCountUp(el, target, duration = 900) {
-  if (REDUCE_MOTION) {
-    el.textContent = String(target);
-    return;
-  }
-  const start = performance.now();
-  function tick(now) {
-    const progress = Math.min(1, (now - start) / duration);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    el.textContent = String(Math.round(target * eased));
-    if (progress < 1) {
-      window.requestAnimationFrame(tick);
-    }
-  }
-  window.requestAnimationFrame(tick);
-}
-
-function animateScoreRing(fillEl, badgeEl, score) {
-  const grade = gradeForScore(score);
-  fillEl.classList.add(`grade-${grade}`);
-  badgeEl.textContent = grade.toUpperCase();
-  badgeEl.classList.add(`grade-${grade}`);
-
-  const offset = SCORE_RING_CIRCUMFERENCE * (1 - score / 100);
-  window.requestAnimationFrame(() => {
-    fillEl.style.strokeDashoffset = String(offset);
-  });
-
-  window.setTimeout(() => {
-    badgeEl.classList.add("show");
-  }, REDUCE_MOTION ? 0 : 500);
-}
-
-function animateScoreBar(barFillEl, score) {
-  window.requestAnimationFrame(() => {
-    barFillEl.style.width = `${score}%`;
-  });
-}
-
 function hasKorean(text) {
   return /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(text);
 }
@@ -112,25 +57,10 @@ function buildResultBlock(container, result) {
   container.innerHTML = "";
   const fragment = resultTemplate.content.cloneNode(true);
 
-  const totalScore = clampScore(result.score);
-  const contentScore = clampScore(result.contentScore);
-  const grammarScore = clampScore(result.grammarScore);
-  const vocabularyScore = clampScore(result.vocabularyScore);
-
-  animateCountUp(fragment.querySelector(".score-total"), totalScore);
-  animateScoreRing(
-    fragment.querySelector(".score-ring-fill"),
-    fragment.querySelector(".score-grade-badge"),
-    totalScore
-  );
-
-  fragment.querySelector(".score-content").textContent = scoreText(contentScore);
-  fragment.querySelector(".score-grammar").textContent = scoreText(grammarScore);
-  fragment.querySelector(".score-vocabulary").textContent = scoreText(vocabularyScore);
-  animateScoreBar(fragment.querySelector(".score-bar-fill.content"), contentScore);
-  animateScoreBar(fragment.querySelector(".score-bar-fill.grammar"), grammarScore);
-  animateScoreBar(fragment.querySelector(".score-bar-fill.vocabulary"), vocabularyScore);
-
+  fragment.querySelector(".score-total").textContent = scoreText(result.score);
+  fragment.querySelector(".score-content").textContent = scoreText(result.contentScore);
+  fragment.querySelector(".score-grammar").textContent = scoreText(result.grammarScore);
+  fragment.querySelector(".score-vocabulary").textContent = scoreText(result.vocabularyScore);
   fragment.querySelector(".sample-answer").textContent = escapeText(result.sampleAnswer);
   fragment.querySelector(".feedback-text").textContent = escapeText(result.feedback);
 

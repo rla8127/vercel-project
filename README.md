@@ -16,7 +16,7 @@ SpeakUp은 AI가 토익 스피킹(TOEIC Speaking) 문제를 그때그때 새로 
 - [실행 방법](#실행-방법)
 - [환경 변수](#환경-변수)
 - [배포 방법](#배포-방법)
-- [방문자 분석 (Vercel Analytics)](#방문자-분석-vercel-analytics)
+- [다크 모드](#다크-모드)
 - [스크린샷](#스크린샷)
 - [AI 코딩 도구 사용 과정](#ai-코딩-도구-사용-과정)
 - [서비스 기획서](#서비스-기획서)
@@ -55,6 +55,7 @@ SpeakUp은 AI가 토익 스피킹(TOEIC Speaking) 문제를 그때그때 새로 
 - 모범 답안, 개선할 부분, 전체 피드백 제공
 - 빈 입력, 한글만 입력, API 오류, 응답 지연 상황에 대한 안내 메시지
 - 모바일/데스크톱 반응형 UI
+- 라이트/다크 모드 전환 (시스템 설정 자동 감지 + 토글 버튼, 선택 유지)
 - Langfuse를 통한 AI 호출 관측(trace) — 문제 생성·평가 요청의 프롬프트, 응답, 토큰 사용량을 기록
 
 ## AI 기능 상세
@@ -84,6 +85,16 @@ SpeakUp은 AI가 토익 스피킹(TOEIC Speaking) 문제를 그때그때 새로 
   - 프론트엔드에서 30초 응답 지연 시 자체적으로 요청을 중단하고 "응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요." 안내
 
 두 엔드포인트 모두 문항/평가 단위로 중복 제출을 막고(버튼 비활성화), 진행 상태를 로딩 메시지로 표시합니다. 상세 입출력 스펙은 [`docs/api-spec.md`](docs/api-spec.md)를 참고하세요.
+
+### 프론트엔드 연동 (`js/app.js`)
+
+프론트엔드는 `fetch`로 위 두 엔드포인트를 직접 호출하고, 응답 상태에 따라 화면을 갱신합니다.
+
+- **요청**: `fetch("/api/generate", { method: "POST", ... })`, `fetch("/api/evaluate", { method: "POST", ... })` — `Content-Type: application/json` 헤더와 JSON 바디로 요청
+- **정상 응답**: `response.ok`이면 JSON 바디를 파싱해 문제 카드(`renderPart3`/`renderPart5`) 또는 평가 결과 블록(`buildResultBlock`)을 렌더링
+- **에러 응답**: `response.ok`가 아니면 서버가 내려준 `error` 메시지를 그대로 화면에 표시(별도 메시지 하드코딩 없이 서버 메시지 우선 사용)
+- **타임아웃 처리**: `AbortController`로 30초 제한을 걸어 두고, 응답이 늦어지면 요청을 직접 중단하고 "응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요." 안내
+- **중복 제출 방지**: 요청이 진행 중인 동안 버튼을 비활성화하고 로딩 문구("문제를 만들고 있습니다." / "답변을 평가하고 있습니다.")를 표시, 응답을 받으면(성공이든 실패든) 버튼을 다시 활성화
 
 ## 기술 스택
 
@@ -169,47 +180,34 @@ Langfuse 환경 변수가 없으면 관측 없이 기존 기능만 정상 동작
 4. Vercel 배포를 실행합니다(`vercel deploy --prod` 또는 GitHub 연동 자동 배포).
 5. 배포 URL에서 메뉴 이동, 반응형 화면, 문제 생성/평가 AI 기능을 확인합니다.
 
-## 방문자 분석 (Vercel Analytics)
+## 다크 모드
 
-보너스 과제로 방문자 분석을 적용했습니다. 별도 npm 패키지 설치 없이, Vercel이 제공하는 추적 스크립트를 `index.html`에 직접 삽입하는 방식(순수 HTML 사이트 공식 지원 방법)을 사용합니다.
+헤더 우측의 토글 버튼(🌙/☀️)으로 라이트/다크 테마를 전환할 수 있습니다.
 
-```html
-<script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/insights/script.js"></script>
-```
-
-이 스크립트만으로는 수집이 시작되지 않고, Vercel 대시보드에서 프로젝트별로 활성화해야 합니다.
-
-1. [Vercel 대시보드](https://vercel.com/dashboard)에서 이 프로젝트를 선택합니다.
-2. 좌측 메뉴에서 **Analytics**를 선택하고 **Enable** 버튼을 클릭합니다.
-3. 다음 배포부터 `/_vercel/insights/*` 경로가 활성화되며, 배포된 사이트에 실제 방문자가 접속하면 데이터가 쌓이기 시작합니다.
-4. Analytics 탭에서 페이지뷰, 방문자 수 등을 확인할 수 있습니다.
+- 최초 접속 시 브라우저의 시스템 다크 모드 설정(`prefers-color-scheme`)을 자동으로 반영합니다.
+- 토글 버튼으로 직접 전환하면 선택한 테마가 `localStorage`에 저장되어, 이후 재방문·새로고침 시에도 유지됩니다.
+- 테마 적용은 `<head>`의 인라인 스크립트에서 페이지 렌더링 전에 처리되어 전환 시 화면 깜빡임(FOUC)이 없습니다.
+- 색상은 `css/styles.css`의 CSS 커스텀 프로퍼티(`--bg`, `--surface`, `--ink` 등)로 관리되며, `:root[data-theme="dark"]`에서 다크 팔레트로 재정의됩니다.
 
 ## 스크린샷
-
-<!-- 아래 표의 이미지 경로에 실제 스크린샷 파일을 docs/evidence/ 에 추가한 뒤 파일명을 맞춰주세요. -->
 
 | 구분 | 스크린샷 |
 | --- | --- |
 | 데스크톱 화면 | ![데스크톱 화면](docs/evidence/desktop.png) |
 | 모바일 화면 | ![모바일 화면](docs/evidence/mobile.png) |
 | AI 기능 동작 (문제 생성) | ![AI 문제 생성](docs/evidence/ai-generate.png) |
-| AI 기능 동작 (평가 결과) | ![AI 평가 결과](docs/evidence/ai-evaluate.png) |
+| AI 기능 동작 (평가 결과) | ![AI 평가 결과](docs/evidence/ai-coding-log.png) |
 
 ## AI 코딩 도구 사용 과정
 
-<!-- AI 코딩 도구(예: Claude Code) 대화 로그 또는 스크린샷을 docs/evidence/ 에 추가하고 아래에 연결해주세요. -->
-
 - 대화 로그/스크린샷: [`docs/evidence/ai-coding-log.png`](docs/evidence/ai-coding-log.png) (또는 텍스트 로그 파일)
 
-AI 코딩 도구 사용 증빙에는 API 키나 비밀 값이 노출되지 않도록 캡처 전에 확인합니다.
 
 ## 서비스 기획서
 
 서비스 기획과 SDD(Spec-Driven Development) 문서는 `docs/` 폴더에 정리되어 있습니다.
 
+- [`docs/service-plan.md`](docs/service-plan.md) — 서비스 기획서 요약(아이디어, 목적, 타겟 사용자, 섹션 구성, AI 기능 정의)
 - [`docs/product-spec.md`](docs/product-spec.md) — 서비스 목적, 타겟 사용자, 핵심 가치, MVP 범위
 - [`docs/user-flows.md`](docs/user-flows.md) — 사용자 흐름, 화면 전환, 실패 흐름
 - [`docs/data-model.md`](docs/data-model.md) — 데이터 모델(문제 생성/평가 요청·응답 구조)
@@ -217,8 +215,8 @@ AI 코딩 도구 사용 증빙에는 API 키나 비밀 값이 노출되지 않�
 - [`docs/implementation-plan.md`](docs/implementation-plan.md) — 구현 순서와 결정 사항
 - [`docs/assignment-criteria.md`](docs/assignment-criteria.md) — 과제 제출 기준 체크리스트
 
-## 보안 주의사항
+## LLM 모니터링 / 로깅
 
-- API 키를 코드, README, 스크린샷, 대화 로그에 노출하지 않습니다.
-- 키 유출이 의심되면 즉시 폐기하고 재발급합니다.
-- 노출된 키가 커밋에 포함됐다면 커밋 이력 정리도 필요합니다.
+![Langfuse trace 목록](docs/evidence/langfuse-1.png)
+
+![Langfuse trace 상세](docs/evidence/langfuse-2.png)

@@ -81,6 +81,7 @@ README에 반드시 포함할 내용:
 
 관련 문서:
 
+- `docs/service-plan.md` (서비스 기획서 요약)
 - `docs/product-spec.md`
 - `docs/user-flows.md`
 - `docs/data-model.md`

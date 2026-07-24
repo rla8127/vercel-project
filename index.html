@@ -193,21 +193,35 @@
 
     <template id="result-template">
       <div class="score-summary">
-        <span>종합 점수</span>
-        <strong class="score-total">0점</strong>
+        <div class="score-ring-wrap">
+          <svg class="score-ring" viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="score-ring-track" cx="60" cy="60" r="52"></circle>
+            <circle class="score-ring-fill" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <div class="score-ring-center">
+            <strong class="score-total">0</strong>
+            <span class="score-grade-badge">-</span>
+          </div>
+        </div>
+        <div class="score-summary-label">
+          <span>종합 점수</span>
+        </div>
       </div>
       <div class="score-grid">
         <div>
           <span>내용 적절성</span>
           <strong class="score-content">0점</strong>
+          <div class="score-bar"><div class="score-bar-fill content"></div></div>
         </div>
         <div>
           <span>문법</span>
           <strong class="score-grammar">0점</strong>
+          <div class="score-bar"><div class="score-bar-fill grammar"></div></div>
         </div>
         <div>
           <span>어휘</span>
           <strong class="score-vocabulary">0점</strong>
+          <div class="score-bar"><div class="score-bar-fill vocabulary"></div></div>
         </div>
       </div>
       <div class="result-section">

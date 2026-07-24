@@ -1,136 +1,19 @@
-const fallbackExercises = [
-  {
-    id: 1,
-    level: "beginner",
-    sentence: "나는 매일 아침 커피를 마신다.",
-    exampleAnswer: "I drink coffee every morning."
-  },
-  {
-    id: 2,
-    level: "beginner",
-    sentence: "그녀는 어제 영화를 보았다.",
-    exampleAnswer: "She watched a movie yesterday."
-  },
-  {
-    id: 3,
-    level: "beginner",
-    sentence: "우리는 학교에 걸어간다.",
-    exampleAnswer: "We walk to school."
-  },
-  {
-    id: 4,
-    level: "intermediate",
-    sentence: "나는 시간을 절약할 수 있기 때문에 온라인 쇼핑을 선호한다.",
-    exampleAnswer: "I prefer shopping online because it saves me time."
-  },
-  {
-    id: 5,
-    level: "intermediate",
-    sentence: "비가 많이 와서 우리는 약속을 취소해야 했다.",
-    exampleAnswer: "Because it rained heavily, we had to cancel our appointment."
-  },
-  {
-    id: 6,
-    level: "intermediate",
-    sentence: "나는 새로운 언어를 배우는 것이 자신감을 높여 준다고 생각한다.",
-    exampleAnswer: "I think learning a new language increases confidence."
-  }
-];
-
 const state = {
-  exercises: fallbackExercises,
-  level: "",
-  currentExercise: null,
-  currentIndexByLevel: {
-    beginner: 0,
-    intermediate: 0
-  },
-  isSubmitting: false
+  part: "",
+  isGenerating: false,
+  currentQuestion: null
 };
 
-const form = document.querySelector("#practice-form");
-const levelInputs = document.querySelectorAll("input[name='level']");
-const koreanSentence = document.querySelector("#korean-sentence");
-const answerInput = document.querySelector("#user-answer");
-const formMessage = document.querySelector("#form-message");
-const submitButton = document.querySelector("#submit-button");
-const nextButton = document.querySelector("#next-button");
-const resultEmpty = document.querySelector("#result-empty");
-const resultContent = document.querySelector("#result-content");
+const partInputs = document.querySelectorAll("input[name='part']");
+const generateButton = document.querySelector("#generate-button");
+const generateMessage = document.querySelector("#generate-message");
+const questionEmpty = document.querySelector("#question-empty");
+const questionArea = document.querySelector("#question-area");
 
-async function loadExercises() {
-  try {
-    const response = await fetch("data/exercises.json", { cache: "no-store" });
-    if (!response.ok) {
-      return;
-    }
-    const data = await response.json();
-    if (Array.isArray(data) && data.length > 0) {
-      state.exercises = data;
-    }
-  } catch (error) {
-    console.info("정적 문제 파일을 불러오지 못해 내장 문제를 사용합니다.", error);
-  }
-}
-
-function getExercisesByLevel(level) {
-  return state.exercises.filter((exercise) => exercise.level === level);
-}
-
-function setMessage(text, type = "error") {
-  formMessage.textContent = text;
-  formMessage.classList.toggle("info", type === "info");
-}
-
-function clearMessage() {
-  setMessage("");
-}
-
-function setCurrentExercise(level, direction = "current") {
-  const list = getExercisesByLevel(level);
-  if (list.length === 0) {
-    state.currentExercise = null;
-    koreanSentence.textContent = "이 난이도의 문제가 아직 없습니다.";
-    return;
-  }
-
-  if (direction === "next") {
-    state.currentIndexByLevel[level] = (state.currentIndexByLevel[level] + 1) % list.length;
-  }
-
-  const index = state.currentIndexByLevel[level] % list.length;
-  state.currentExercise = list[index];
-  koreanSentence.textContent = state.currentExercise.sentence;
-}
-
-function resetResult() {
-  resultEmpty.classList.remove("hidden");
-  resultContent.classList.add("hidden");
-}
-
-function validateInput() {
-  const answer = answerInput.value.trim();
-  const hasKorean = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(answer);
-  const hasEnglish = /[A-Za-z]/.test(answer);
-
-  if (!state.level) {
-    return "난이도를 선택해 주세요.";
-  }
-
-  if (!answer) {
-    return "영어 문장을 입력해 주세요.";
-  }
-
-  if (hasKorean && !hasEnglish) {
-    return "영어로 답변을 작성해 주세요.";
-  }
-
-  if (!state.currentExercise) {
-    return "문제를 불러온 뒤 다시 시도해 주세요.";
-  }
-
-  return "";
-}
+const part3Template = document.querySelector("#part3-template");
+const part3ItemTemplate = document.querySelector("#part3-item-template");
+const part5Template = document.querySelector("#part5-template");
+const resultTemplate = document.querySelector("#result-template");
 
 function escapeText(value) {
   return String(value ?? "");
@@ -141,116 +24,267 @@ function scoreText(value) {
   return `${Math.max(0, Math.min(100, score))}점`;
 }
 
-function renderResult(result) {
-  document.querySelector("#score-total").textContent = scoreText(result.score);
-  document.querySelector("#score-meaning").textContent = scoreText(result.meaningScore);
-  document.querySelector("#score-grammar").textContent = scoreText(result.grammarScore);
-  document.querySelector("#score-naturalness").textContent = scoreText(result.naturalnessScore);
-  document.querySelector("#corrected-sentence").textContent = escapeText(result.correctedSentence);
-  document.querySelector("#feedback-text").textContent = escapeText(result.feedback);
+function hasKorean(text) {
+  return /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(text);
+}
 
-  const mistakeList = document.querySelector("#mistake-list");
-  mistakeList.innerHTML = "";
+function hasEnglish(text) {
+  return /[A-Za-z]/.test(text);
+}
 
-  const mistakes = Array.isArray(result.mistakes) ? result.mistakes : [];
-  if (mistakes.length === 0) {
+function validateAnswer(answer) {
+  if (!answer) {
+    return "답변을 입력해 주세요.";
+  }
+  if (hasKorean(answer) && !hasEnglish(answer)) {
+    return "영어로 답변을 작성해 주세요.";
+  }
+  return "";
+}
+
+function setGenerateMessage(text, type = "error") {
+  generateMessage.textContent = text;
+  generateMessage.classList.toggle("info", type === "info");
+}
+
+function setGenerating(isGenerating) {
+  state.isGenerating = isGenerating;
+  generateButton.disabled = isGenerating || !state.part;
+  generateButton.textContent = isGenerating ? "문제 만드는 중..." : "문제 만들기";
+}
+
+function buildResultBlock(container, result) {
+  container.innerHTML = "";
+  const fragment = resultTemplate.content.cloneNode(true);
+
+  fragment.querySelector(".score-total").textContent = scoreText(result.score);
+  fragment.querySelector(".score-content").textContent = scoreText(result.contentScore);
+  fragment.querySelector(".score-grammar").textContent = scoreText(result.grammarScore);
+  fragment.querySelector(".score-vocabulary").textContent = scoreText(result.vocabularyScore);
+  fragment.querySelector(".sample-answer").textContent = escapeText(result.sampleAnswer);
+  fragment.querySelector(".feedback-text").textContent = escapeText(result.feedback);
+
+  const list = fragment.querySelector(".improvement-list");
+  const improvements = Array.isArray(result.improvements) ? result.improvements : [];
+
+  if (improvements.length === 0) {
     const item = document.createElement("li");
-    item.innerHTML = "<strong>수정할 부분이 없습니다.</strong><p>문장이 이미 자연스럽다면 그대로 사용해도 좋습니다.</p>";
-    mistakeList.appendChild(item);
+    item.innerHTML = "<strong>개선할 부분이 없습니다.</strong><p>답변이 이미 적절하다면 그대로 사용해도 좋습니다.</p>";
+    list.appendChild(item);
   } else {
-    mistakes.forEach((mistake) => {
+    improvements.forEach((improvement) => {
       const item = document.createElement("li");
       const title = document.createElement("strong");
       const reason = document.createElement("p");
-      title.textContent = `${escapeText(mistake.original)} → ${escapeText(mistake.correction)}`;
-      reason.textContent = escapeText(mistake.reason);
+      title.textContent = `${escapeText(improvement.original)} → ${escapeText(improvement.suggestion)}`;
+      reason.textContent = escapeText(improvement.reason);
       item.append(title, reason);
-      mistakeList.appendChild(item);
+      list.appendChild(item);
     });
   }
 
-  resultEmpty.classList.add("hidden");
-  resultContent.classList.remove("hidden");
+  container.appendChild(fragment);
+  container.classList.remove("hidden");
 }
 
-function setSubmitting(isSubmitting) {
-  state.isSubmitting = isSubmitting;
-  submitButton.disabled = isSubmitting;
-  submitButton.textContent = isSubmitting ? "평가 중..." : "AI 평가 받기";
-}
-
-async function submitEvaluation(event) {
-  event.preventDefault();
-
-  if (state.isSubmitting) {
-    return;
-  }
-
-  const validationMessage = validateInput();
-  if (validationMessage) {
-    setMessage(validationMessage);
-    return;
-  }
-
-  clearMessage();
-  setSubmitting(true);
-  setMessage("답변을 평가하고 있습니다.", "info");
-
+async function requestEvaluation(payload) {
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), 30000);
 
   try {
     const response = await fetch("/api/evaluate", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        level: state.level,
-        koreanSentence: state.currentExercise.sentence,
-        userAnswer: answerInput.value.trim()
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
       signal: controller.signal
     });
 
-    const payload = await response.json().catch(() => ({}));
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      throw new Error(payload.error || "평가 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      throw new Error(data.error || "평가 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     }
 
-    renderResult(payload);
-    clearMessage();
+    return { ok: true, result: data };
   } catch (error) {
     const isAbort = error.name === "AbortError";
-    setMessage(isAbort ? "응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요." : "평가 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+    const message = isAbort
+      ? "응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요."
+      : error.message || "평가 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.";
+    return { ok: false, message };
   } finally {
     window.clearTimeout(timeoutId);
-    setSubmitting(false);
   }
 }
 
-levelInputs.forEach((input) => {
+function wireEvalCard(card, buildPayload) {
+  const textarea = card.querySelector(".answer-input");
+  const button = card.querySelector(".eval-button");
+  const message = card.querySelector(".item-message");
+  const resultContainer = card.querySelector(".result-container");
+
+  let isSubmitting = false;
+
+  button.addEventListener("click", async () => {
+    if (isSubmitting) {
+      return;
+    }
+
+    const answer = textarea.value.trim();
+    const validationMessage = validateAnswer(answer);
+    if (validationMessage) {
+      message.textContent = validationMessage;
+      message.classList.remove("info");
+      return;
+    }
+
+    isSubmitting = true;
+    button.disabled = true;
+    button.textContent = "평가 중...";
+    message.textContent = "답변을 평가하고 있습니다.";
+    message.classList.add("info");
+
+    const payload = buildPayload(answer);
+    const outcome = await requestEvaluation(payload);
+
+    if (outcome.ok) {
+      message.textContent = "";
+      message.classList.remove("info");
+      buildResultBlock(resultContainer, outcome.result);
+    } else {
+      message.textContent = outcome.message;
+      message.classList.remove("info");
+    }
+
+    isSubmitting = false;
+    button.disabled = false;
+    button.textContent = card.dataset.evalLabel || "평가받기";
+  });
+}
+
+function renderPart3(question) {
+  questionArea.innerHTML = "";
+  const fragment = part3Template.content.cloneNode(true);
+
+  fragment.querySelector(".context-text").textContent = question.context;
+  fragment.querySelector(".dialogue-text").textContent = question.dialogue;
+
+  const list = fragment.querySelector(".question-list");
+
+  question.questions.forEach((questionText, index) => {
+    const itemFragment = part3ItemTemplate.content.cloneNode(true);
+    const card = itemFragment.querySelector(".question-card");
+    card.dataset.evalLabel = "이 문항 평가받기";
+
+    itemFragment.querySelector(".question-number").textContent = String(index + 1);
+    itemFragment.querySelector(".question-text").textContent = questionText;
+
+    wireEvalCard(card, (answer) => ({
+      part: "part3",
+      context: question.context,
+      dialogue: question.dialogue,
+      question: questionText,
+      userAnswer: answer
+    }));
+
+    list.appendChild(itemFragment);
+  });
+
+  questionArea.appendChild(fragment);
+}
+
+function renderPart5(question) {
+  questionArea.innerHTML = "";
+  const fragment = part5Template.content.cloneNode(true);
+
+  fragment.querySelector(".situation-text").textContent = question.situation;
+
+  const card = fragment.querySelector(".question-card");
+  card.dataset.evalLabel = "평가받기";
+
+  wireEvalCard(card, (answer) => ({
+    part: "part5",
+    situation: question.situation,
+    problem: question.problem,
+    userAnswer: answer
+  }));
+
+  questionArea.appendChild(fragment);
+}
+
+async function generateQuestion() {
+  if (state.isGenerating || !state.part) {
+    return;
+  }
+
+  setGenerating(true);
+  setGenerateMessage("문제를 만들고 있습니다.", "info");
+
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ part: state.part }),
+      signal: controller.signal
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(data.error || "문제를 생성하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    }
+
+    state.currentQuestion = data;
+    questionEmpty.classList.add("hidden");
+    questionArea.classList.remove("hidden");
+
+    if (data.part === "part3") {
+      renderPart3(data);
+    } else {
+      renderPart5(data);
+    }
+
+    setGenerateMessage("");
+  } catch (error) {
+    const isAbort = error.name === "AbortError";
+    setGenerateMessage(
+      isAbort
+        ? "응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요."
+        : error.message || "문제를 생성하지 못했습니다. 잠시 후 다시 시도해 주세요."
+    );
+  } finally {
+    window.clearTimeout(timeoutId);
+    setGenerating(false);
+  }
+}
+
+partInputs.forEach((input) => {
   input.addEventListener("change", () => {
-    state.level = input.value;
-    setCurrentExercise(state.level);
-    answerInput.value = "";
-    clearMessage();
-    resetResult();
+    state.part = input.value;
+    generateButton.disabled = state.isGenerating || !state.part;
+    setGenerateMessage("");
   });
 });
 
-nextButton.addEventListener("click", () => {
-  if (!state.level) {
-    setMessage("난이도를 선택해 주세요.");
-    return;
+generateButton.addEventListener("click", generateQuestion);
+
+const themeToggle = document.querySelector("#theme-toggle");
+const themeToggleIcon = themeToggle?.querySelector(".theme-toggle-icon");
+
+function applyThemeIcon(theme) {
+  if (themeToggleIcon) {
+    themeToggleIcon.textContent = theme === "dark" ? "☀️" : "🌙";
   }
-  setCurrentExercise(state.level, "next");
-  answerInput.value = "";
-  clearMessage();
-  resetResult();
+}
+
+applyThemeIcon(document.documentElement.getAttribute("data-theme"));
+
+themeToggle?.addEventListener("click", () => {
+  const nextTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", nextTheme);
+  localStorage.setItem("theme", nextTheme);
+  applyThemeIcon(nextTheme);
 });
-
-form.addEventListener("submit", submitEvaluation);
-
-loadExercises();

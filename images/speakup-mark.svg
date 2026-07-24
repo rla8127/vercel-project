@@ -1,0 +1,8 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SpeakUp mark">
+  <rect width="96" height="96" rx="20" fill="#146B57"/>
+  <path d="M26 30C26 24.4772 30.4772 20 36 20H58C63.5228 20 68 24.4772 68 30V46C68 51.5228 63.5228 56 58 56H44L32 66V56H36C30.4772 56 26 51.5228 26 46V30Z" fill="#FFFFFF"/>
+  <circle cx="38" cy="38" r="4" fill="#146B57"/>
+  <circle cx="48" cy="38" r="4" fill="#146B57"/>
+  <circle cx="58" cy="38" r="4" fill="#146B57"/>
+  <path d="M70 42L82 36V64L70 58" stroke="#F3C04A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
